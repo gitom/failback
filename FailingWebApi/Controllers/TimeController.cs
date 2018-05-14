@@ -10,7 +10,7 @@ namespace FailingWebApi.Controllers
             var currentTime = new CurrentTime
             {
                 Now = DateTime.Now.ToLongTimeString(),
-                Provider = "TimeController"
+                Provider = "Public api (but sometimes I fail)"
             };
             return currentTime;
         }
