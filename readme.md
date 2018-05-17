@@ -1,3 +1,6 @@
+![logo](https://github.com/gitom/failback/blob/master/WhatIsTheTime/Content/failback.png "FailBack")
+
+
 # Failback
 
 Failback is a .Net library that allows you to cache method call results, and return these  in case of 
@@ -18,6 +21,7 @@ The goal of this project is two-fold:
 ## Testing
 
 Current setup for testing:
-•	[REST Api](http://failingwebapi.azurewebsites.net/api/time) returns timestamp : 
-•	[Front end](http://whatisthetime.azurewebsites.net/) calls API and shows timestamp 
+
+-	[REST Api](http://failingwebapi.azurewebsites.net/api/time) returns timestamp
+-	[Front end](http://whatisthetime.azurewebsites.net/) calls API and shows timestamp
 
