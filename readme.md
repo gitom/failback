@@ -14,3 +14,10 @@ The goal of this project is two-fold:
   - [Polly]() or [Hystrix]()
   - [LaunchDarkly]()
   - [Brightr]() or [Mediatr]()
+  
+## Testing
+
+Current setup for testing:
+•	[REST Api](http://failingwebapi.azurewebsites.net/api/time) returns timestamp : 
+•	[Front end](http://whatisthetime.azurewebsites.net/) calls API and shows timestamp 
+
