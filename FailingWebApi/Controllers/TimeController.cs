@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Web.Http;
 using LaunchDarkly.Client;
 
@@ -16,6 +17,7 @@ namespace FailingWebApi.Controllers
 
             if (showFeature)
             {
+                Thread.Sleep(5000);
                 throw new Exception("This api is just bad...");
             }
             else
