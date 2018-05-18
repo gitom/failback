@@ -4,6 +4,12 @@
     ViewBag.Title = "Failback for ExplorationDays";
 }
 
+@section scripts {
+    <script src="//unpkg.com/vue" type="text/javascript"></script>
+    <script src="~/Scripts/multris.js"></script>
+    <link href="~/Content/multris.css" rel="stylesheet" type="text/css">
+}
+
 <div class="jumbotron">
     <img src="~/Content/failback.png" alt="FailBack" style="max-width: 500px"/>
     <p class="lead">Fallback to cached responses when the external api starts to fail</p>
@@ -30,4 +36,5 @@
             @Model.CircuitState
         </p>
     </div>
+    <div id="multris"></div>
 </div>
