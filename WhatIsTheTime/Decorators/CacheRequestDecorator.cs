@@ -3,9 +3,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using FailingWebApi;
 using MediatR;
+using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using Polly;
 using Polly.CircuitBreaker;
+using WhatIsTheTime.Hubs;
+using WhatIsTheTime.Models;
 
 namespace WhatIsTheTime.Decorators
 {
@@ -38,7 +41,25 @@ namespace WhatIsTheTime.Decorators
             {
                 return circuitBreakerPolicy ?? (circuitBreakerPolicy = Policy<TOut>
                            .Handle<Exception>()
-                           .CircuitBreakerAsync(2, TimeSpan.FromSeconds(60)));
+                           .CircuitBreakerAsync<TOut>(2, TimeSpan.FromSeconds(15), onbreak2, onreset, onHalfOpen));
+            }
+
+            private static void onHalfOpen()
+            {
+                var context = GlobalHost.ConnectionManager.GetHubContext<CircuitbreakerHub>();
+                context.Clients.All.circuitstatechange("api circuitbreaker", "halfopen");
+            }
+
+            private static void onreset(Context obj)
+            {
+                var context = GlobalHost.ConnectionManager.GetHubContext<CircuitbreakerHub>();
+                context.Clients.All.circuitstatechange("api circuitbreaker", "closed");
+            }
+
+            private static void onbreak2(DelegateResult<TOut> arg1, TimeSpan arg2, Context arg3)
+            {
+                var context = GlobalHost.ConnectionManager.GetHubContext<CircuitbreakerHub>();
+                context.Clients.All.circuitstatechange("api circuitbreaker", "open");
             }
         }
 
