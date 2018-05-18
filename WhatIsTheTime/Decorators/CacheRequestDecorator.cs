@@ -7,12 +7,13 @@ using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using Polly;
 using Polly.CircuitBreaker;
+using StackExchange.Redis;
 using WhatIsTheTime.Hubs;
 using WhatIsTheTime.Models;
 
 namespace WhatIsTheTime.Decorators
 {
-    public class CacheRequestDecorator<TIn, TOut> : IRequestHandler<TIn, TOut> where TIn : IRequest<TOut>
+    public class CacheRequestDecorator<TIn, TOut> : IRequestHandler<TIn, TOut> where TIn : IRequest<TOut> where TOut : IProvider
     {
         private readonly IRequestHandler<TIn, TOut> decoratee;
 
@@ -67,6 +68,7 @@ namespace WhatIsTheTime.Decorators
             var redisDb = RedisConfig.Redis.GetDatabase();
             var cachedValue = await redisDb.StringGetAsync("api");
             var currentTime = JsonConvert.DeserializeObject<TOut>(cachedValue);
+            currentTime.Provider = "Cache provider";
             return currentTime;
         }
     }
