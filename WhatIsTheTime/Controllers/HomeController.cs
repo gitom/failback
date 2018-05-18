@@ -4,40 +4,28 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using FailingWebApi;
+using MediatR;
 using Newtonsoft.Json;
 using Polly;
 using Polly.CircuitBreaker;
 using RestSharp;
+using WhatIsTheTime.Requests;
 
 namespace WhatIsTheTime.Controllers
 {
-    public static class PolicyFactory
-    {
-        private static CircuitBreakerPolicy<CurrentTime> circuitBreakerPolicy;
-
-        public static CircuitBreakerPolicy<CurrentTime> CircuitbreakerPolicy()
-        {
-            return circuitBreakerPolicy ?? (circuitBreakerPolicy = Policy<CurrentTime>
-                       .Handle<Exception>()
-                       .CircuitBreakerAsync(2, TimeSpan.FromSeconds(60)));
-        }
-    }
     public class HomeController : Controller
     {
+        private readonly IMediator mediator;
+
+        public HomeController(IMediator mediator)
+        {
+            this.mediator = mediator;
+        }
+
         public async Task<ActionResult> Index()
         {
-            //var circuitBreakerPolicy = Policy<CurrentTime>
-            //    .Handle<Exception>()
-            //    .CircuitBreakerAsync(2, TimeSpan.FromSeconds(60));
+            var currentTime = await mediator.Send(new GetTimeRequest());
 
-            var fallbackPolicy = Policy<CurrentTime>
-                .Handle<Exception>()
-                .FallbackAsync(GetCurrentTimeFromCache);
-
-            var fallbackAfterCircuitbreaker = fallbackPolicy.WrapAsync(PolicyFactory.CircuitbreakerPolicy());
-
-            var currentTime = await fallbackAfterCircuitbreaker.ExecuteAsync(GetCurrentTimeFromExternalService);
-            currentTime.CircuitState = PolicyFactory.CircuitbreakerPolicy().CircuitState.ToString();
             return View(currentTime);
         }
 

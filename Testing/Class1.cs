@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using FailingWebApi;
 using FluentAssertions;
 using RestSharp;
 using StackExchange.Redis;
-using WhatIsTheTime.Controllers;
+using WhatIsTheTime.Models;
 using Xunit;
 
 namespace Testing
