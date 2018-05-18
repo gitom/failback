@@ -3,16 +3,27 @@
 @{
     ViewBag.Title = "Polly dashboard";
 }
-<h2>Polly Dashboard</h2>
 
-<h3>The circuit breaker is <span id="state">Closed</span></h3>
+<div class="jumbotron">
+    <img src="~/Content/failback.png" alt="FailBack" style="max-width: 500px" />
 
-<div class="container">
-    @*<input type="text" id="message" />
-    <input type="button" id="sendmessage" value="Send" />
-    <input type="hidden" id="displayname" />*@
-    <ul id="discussion"></ul>
 </div>
+<div class="row">
+    <div class="col-md-3">
+        <img src="~/Content/green.png" alt="closed" id="stateimage" width="200px" />
+    </div>
+    <div class="col-md-9">
+        <h3>The circuit breaker is <span id="state">Closed</span></h3>
+        <div class="container">
+            <ul id="discussion"></ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+
 @section scripts {
     <!--Script references. -->
     <!--The jQuery library is required and is referenced by default in _Layout.cshtml. -->
@@ -32,6 +43,15 @@
                     + '</strong>: ' + htmlEncode(state) + '</li>');
 
                 $('#state').text(state);
+                if (state === "open") {
+                    $('#stateimage').attr("src", "/Content/red.png");
+                }
+                if (state === "closed") {
+                    $('#stateimage').attr("src", "/Content/green.png");
+                }
+                if (state === "halfopen") {
+                    $('#stateimage').attr("src", "/Content/blue.png");
+                }
             };
             
 
