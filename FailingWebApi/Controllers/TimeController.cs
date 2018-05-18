@@ -17,7 +17,7 @@ namespace FailingWebApi.Controllers
 
             if (showFeature)
             {
-                Thread.Sleep(5000);
+                Thread.Sleep(2000);
                 throw new Exception("This api is just bad...");
             }
             else

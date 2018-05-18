@@ -4,10 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using FailingWebApi;
+using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using Polly;
 using Polly.CircuitBreaker;
 using RestSharp;
+using WhatIsTheTime.Hubs;
 
 namespace WhatIsTheTime.Controllers
 {
@@ -19,7 +21,25 @@ namespace WhatIsTheTime.Controllers
         {
             return circuitBreakerPolicy ?? (circuitBreakerPolicy = Policy<CurrentTime>
                        .Handle<Exception>()
-                       .CircuitBreakerAsync(2, TimeSpan.FromSeconds(60)));
+                       .CircuitBreakerAsync(2, TimeSpan.FromSeconds(15), onbreak2, onreset, onHalfOpen));
+        }
+
+        private static void onHalfOpen()
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext<CircuitbreakerHub>();
+            context.Clients.All.circuitstatechange("api circuitbreaker", "halfopen");
+        }
+
+        private static void onreset(Context obj)
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext<CircuitbreakerHub>();
+            context.Clients.All.circuitstatechange("api circuitbreaker", "closed");
+        }
+
+        private static void onbreak2(DelegateResult<CurrentTime> arg1, CircuitState arg2, TimeSpan arg3, Context arg4)
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext<CircuitbreakerHub>();
+            context.Clients.All.circuitstatechange("api circuitbreaker", "open");
         }
     }
     public class HomeController : Controller
@@ -39,6 +59,12 @@ namespace WhatIsTheTime.Controllers
             var currentTime = await fallbackAfterCircuitbreaker.ExecuteAsync(GetCurrentTimeFromExternalService);
             currentTime.CircuitState = PolicyFactory.CircuitbreakerPolicy().CircuitState.ToString();
             return View(currentTime);
+        }
+
+        private void TimerCallback(object state)
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext<CircuitbreakerHub>();
+            context.Clients.All.circuitstatechange("blabla", "bunkers");
         }
 
         private async Task<CurrentTime> GetCurrentTimeFromExternalService()
