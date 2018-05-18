@@ -29,14 +29,13 @@ namespace WhatIsTheTime.Decorators
 
             var fallbackAfterCircuitbreaker = fallbackPolicy.WrapAsync(PolicyFactory.CircuitbreakerPolicy());
 
-            return fallbackPolicy.ExecuteAsync(() => decoratee.Handle(request, cancellationToken));
+            return fallbackAfterCircuitbreaker.ExecuteAsync(() => decoratee.Handle(request, cancellationToken));
         }
 
         static class PolicyFactory
         {
             private static CircuitBreakerPolicy<TOut> circuitBreakerPolicy;
 
-            //TODO: Test this
             public static CircuitBreakerPolicy<TOut> CircuitbreakerPolicy()
             {
                 return circuitBreakerPolicy ?? (circuitBreakerPolicy = Policy<TOut>
