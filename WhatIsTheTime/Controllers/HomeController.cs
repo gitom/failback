@@ -1,7 +1,10 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Mvc;
-using MediatR;
-using WhatIsTheTime.Requests;
+using FailingWebApi;
+using Newtonsoft.Json;
+using Polly;
+using Polly.CircuitBreaker;
+using RestSharp;
 
 namespace WhatIsTheTime.Controllers
 {
@@ -20,5 +23,37 @@ namespace WhatIsTheTime.Controllers
 
             return View(currentTime);
         }
+
+        private async Task<CurrentTime> GetCurrentTimeFromExternalService()
+        {
+            var restClient = new RestClient("http://failingwebapi.azurewebsites.net");
+            var restRequest = new RestRequest("api/time");
+
+            var restResponse = await restClient.ExecuteGetTaskAsync<CurrentTime>(restRequest);
+
+            if (restResponse.StatusCode != HttpStatusCode.OK)
+                throw new Exception();
+
+            var currentTime = restResponse.Data;
+            await RedisConfig.Redis.GetDatabase().StringSetAsync("api", JsonConvert.SerializeObject(currentTime));
+            return currentTime;
+        }
+
+
+        private async Task<CurrentTime> GetCurrentTimeFromCache(CancellationToken arg)
+        {
+            var redisDb = RedisConfig.Redis.GetDatabase();
+            var cachedValue = await redisDb.StringGetAsync("api");
+            var currentTime = JsonConvert.DeserializeObject<CurrentTime>(cachedValue);
+            currentTime.Provider = "Cache";
+            return currentTime;
+        }
+    }
+
+    public class CurrentTime
+    {
+        public string Now { get; set; }
+        public string Provider { get; set; }
+        public string CircuitState { get; set; }
     }
 }
