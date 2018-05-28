@@ -1,6 +1,3 @@
-![logo](https://github.com/gitom/failback/blob/master/WhatIsTheTime/Content/failback.png "FailBack")
-
-
 # Failback
 
 Failback is a .Net library that allows you to cache method call results, and return these  in case of 
